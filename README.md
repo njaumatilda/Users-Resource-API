@@ -43,10 +43,10 @@ To set up and run this project locally, follow these steps:
 Create a `.env` file in the root directory of the project with the following variables:
 
 ```
-PORT=8000
-DB_URL=mongodb://localhost:27017/your_database_name
-SALT=10
-JWT_KEY=your_secret_jwt_key
+PORT=
+DB_URL=
+SALT=
+JWT_KEY=
 ```
 
 *   `PORT`: The port number on which the Express server will listen.
