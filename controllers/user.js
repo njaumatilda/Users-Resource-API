@@ -47,6 +47,15 @@ const readSingeleUser = async (req, res) => {
       })
     }
 
+    const cacheKey = `user:detail:${id}`
+
+    const cachedData = await redisClient.get(cacheKey)
+    if (cachedData && cachedData !== null) {
+      console.log("CACHE HIT")
+      return res.status(200).json(JSON.parse(cachedData))
+    }
+
+    console.log("CACHE MISS: Query the database")
     const findUser = await userModel.findById({ _id: id })
     if (!findUser) {
       return res.status(404).json({
@@ -54,6 +63,7 @@ const readSingeleUser = async (req, res) => {
       })
     }
 
+    await redisClient.setex(cacheKey, 900, JSON.stringify(findUser))
     res.status(200).json(findUser)
   } catch (error) {
     console.log(error)
