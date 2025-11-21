@@ -3,12 +3,29 @@ import Joi from "joi"
 import bcrypt from "bcrypt"
 import userModel from "../models/User.js"
 import isValidEmailDomain from "../utils/validEmailDomainChecker.js"
+import redisClient from "../redis.js"
 
 const SALT = Number(process.env.SALT)
 
 const readAllUsers = async (req, res) => {
   try {
+    const cacheKey = `users:list:${req.originalUrl}`
+
+    // Check the cache first---stores data as strings
+    const cachedData = await redisClient.get(cacheKey)
+    if (cachedData && cachedData !== null) {
+      console.log("CACHE HIT")
+      return res.status(200).json(JSON.parse(cachedData)) // convert the string data from the cache to an object before returning it
+    }
+
+    // If cache has no data
+    console.log("CACHE MISS: Query the database")
     const users = await userModel.find()
+
+    // set the data in the cache first before returning it
+    if (users && users.length > 0) {
+      await redisClient.setex(cacheKey, 1800, JSON.stringify(users)) // convert the object data from the DB to a string before returning storing it inside the cachez
+    }
 
     res.status(200).json(users)
   } catch (error) {

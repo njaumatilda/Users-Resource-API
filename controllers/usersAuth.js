@@ -73,7 +73,7 @@ const register = async (req, res) => {
     }
 
     // TODO: VERIFY EMAIL BEFORE CREATING THE USER
-    // TODO: SEND USER EMAIL AFTER ACCOUNT CREATION
+    // TODO: SEND USER EMAIL AFTER ACCOUNT CREATION FOR THE SUCCESSFUL PROCESS
 
     const newUser = await userModel.create({
       name: value.name,
