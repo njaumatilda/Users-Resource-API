@@ -24,7 +24,7 @@ const readAllUsers = async (req, res) => {
 
     // set the data in the cache first before returning it
     if (users && users.length > 0) {
-      await redisClient.setex(cacheKey, 1800, JSON.stringify(users)) // convert the object data from the DB to a string before returning storing it inside the cachez
+      await redisClient.setex(cacheKey, 1800, JSON.stringify(users)) // convert the object data from the DB to a string before returning storing it inside the cache
     }
 
     res.status(200).json(users)
