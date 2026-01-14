@@ -12,10 +12,11 @@ const isValidEmailDomain = async (email) => {
     if (isInDnsRecords && isInDnsRecords.length > 0) {
       console.log(isInDnsRecords)
 
-      return isInDnsRecords && isInDnsRecords.length
+      return isInDnsRecords && isInDnsRecords.length //returns the number of mail servers found for that domain
     }
   } catch (error) {
     console.log(error)
+    return false
   }
 }
 
