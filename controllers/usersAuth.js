@@ -11,7 +11,7 @@ const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body
 
-    // when there's no min check in string joi validation, always treat 
+    // when there's no min check in string joi validation, always treat
     // empty strings ie. ("") as null and not truthy
     const schema = Joi.object({
       name: Joi.string().min(3).max(20).trim().required().uppercase().messages({
@@ -57,10 +57,14 @@ const register = async (req, res) => {
         }),
     })
 
-    const { value, error } = schema.validate(req.body)
+    const { value, error } = schema.validate(req.body, { abortEarly: false })
     if (error) {
+      // instead of stopping validation(abortEarly === true) at first error,
+      // return all validation error messages
+      const errorMessages = error.details.map((detail) => detail.message)
+
       return res.status(400).json({
-        message: error.details[0].message,
+        errors: errorMessages,
       })
     }
 
@@ -107,21 +111,31 @@ const login = async (req, res) => {
     const { email, password } = req.body
 
     const schema = Joi.object({
-      email: Joi.string().email().trim().required().empty("").lowercase().messages({
-        "string.email": "Invalid email address",
-        "any.required": "Please provide an email address",
-        "string.empty": "Email field is not allowed to be empty",
-      }),
+      email: Joi.string()
+        .email()
+        .trim()
+        .required()
+        .empty("")
+        .lowercase()
+        .messages({
+          "string.email": "Invalid email address",
+          "any.required": "Please provide an email address",
+          "string.empty": "Email field is not allowed to be empty",
+        }),
       password: Joi.string().required().empty("").messages({
         "any.required": "Please provide a password",
         "string.empty": "Password field is not allowed to be empty",
       }),
     })
 
-    const { value, error } = schema.validate(req.body)
+    const { value, error } = schema.validate(req.body, { abortEarly: false })
     if (error) {
+      // instead of stopping validation(abortEarly === true) at first error,
+      // return all validation error messages
+      const errorMessages = error.details.map((detail) => detail.message)
+
       return res.status(400).json({
-        message: error.details[0].message,
+        errors: errorMessages,
       })
     }
 
