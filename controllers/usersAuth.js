@@ -11,6 +11,8 @@ const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body
 
+    // when there's no min check in string joi validation, always treat 
+    // empty strings ie. ("") as null and not truthy
     const schema = Joi.object({
       name: Joi.string().min(3).max(20).trim().required().uppercase().messages({
         "string.min": "Name must be at least 3 characters long",
@@ -18,11 +20,17 @@ const register = async (req, res) => {
         "any.required": "Please provide a name",
         "string.empty": "Name field is not allowed to be empty",
       }),
-      email: Joi.string().email().trim().required().lowercase().messages({
-        "string.email": "Invalid email address",
-        "any.required": "Please provide an email address",
-        "string.empty": "Email field is not allowed to be empty",
-      }),
+      email: Joi.string()
+        .email()
+        .trim()
+        .required()
+        .empty("")
+        .lowercase()
+        .messages({
+          "string.email": "Invalid email address",
+          "any.required": "Please provide an email address",
+          "string.empty": "Email field is not allowed to be empty",
+        }),
       password: Joi.string()
         .min(8)
         .required()
