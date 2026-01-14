@@ -107,12 +107,12 @@ const login = async (req, res) => {
     const { email, password } = req.body
 
     const schema = Joi.object({
-      email: Joi.string().email().trim().required().lowercase().messages({
+      email: Joi.string().email().trim().required().empty("").lowercase().messages({
         "string.email": "Invalid email address",
         "any.required": "Please provide an email address",
         "string.empty": "Email field is not allowed to be empty",
       }),
-      password: Joi.string().required().messages({
+      password: Joi.string().required().empty("").messages({
         "any.required": "Please provide a password",
         "string.empty": "Password field is not allowed to be empty",
       }),
