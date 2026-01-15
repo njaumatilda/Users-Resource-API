@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import userModel from "../models/User.js"
 import isValidEmailDomain from "../utils/validEmailDomainChecker.js"
-import { registerSchema, loginSchema } from "../utils/inputValidation.js"
+import { registerSchema, loginSchema } from "../utils/joiValidation.js"
 
 const SALT = Number(process.env.SALT)
 const JWT_KEY = process.env.JWT_KEY
