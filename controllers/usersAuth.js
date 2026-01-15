@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import userModel from "../models/User.js"
 import isValidEmailDomain from "../utils/validEmailDomainChecker.js"
+import { registerSchema, loginSchema } from "../utils/inputValidation.js"
 
 const SALT = Number(process.env.SALT)
 const JWT_KEY = process.env.JWT_KEY
@@ -13,51 +14,10 @@ const register = async (req, res) => {
     // TODO: add validation schema in utils and error check as middleware
     // when there's no min check in string joi validation, always treat
     // empty strings ie. ("") as null and not truthy
-    const schema = Joi.object({
-      name: Joi.string().min(3).max(20).trim().required().uppercase().messages({
-        "string.min": "Name must be at least 3 characters long",
-        "string.max": "Name must not exceed 20 characters",
-        "any.required": "Please provide a name",
-        "string.empty": "Name field is not allowed to be empty",
-      }),
-      email: Joi.string()
-        .email()
-        .trim()
-        .required()
-        .empty()
-        .lowercase()
-        .messages({
-          "string.email": "Invalid email address",
-          "any.required": "Please provide an email address",
-          "string.empty": "Email field is not allowed to be empty",
-        }),
-      password: Joi.string()
-        .min(8)
-        .required()
-        .pattern(new RegExp("[a-z]")) // at least one lowercase
-        .pattern(new RegExp("[A-Z]")) // at least one uppercase
-        .pattern(new RegExp("[0-9]")) // at least one number
-        .pattern(new RegExp('[!@#$%^&*(),.?":{}|<>]')) // at least one special character
-        .messages({
-          "string.min": "Password must be at least 8 characters long",
-          "string.pattern.base":
-            "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character",
-          "any.required": "Please provide a password",
-          "string.empty": "Password field is not allowed to be empty",
-        }),
-      role: Joi.string()
-        .trim()
-        .required()
-        .empty()
-        .valid("owner", "admin", "user")
-        .messages({
-          "any.only": "Role not allowed",
-          "any.required": "Please provide a role",
-          "string.empty": "Role field is not allowed to be empty",
-        }),
-    })
 
-    const { value, error } = schema.validate(req.body, { abortEarly: false })
+    const { value, error } = registerSchema.validate(req.body, {
+      abortEarly: false,
+    })
     if (error) {
       // instead of stopping validation(abortEarly === true) at first error,
       // return all validation error messages
@@ -110,25 +70,9 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body
 
-    const schema = Joi.object({
-      email: Joi.string()
-        .email()
-        .trim()
-        .required()
-        .empty()
-        .lowercase()
-        .messages({
-          "string.email": "Invalid email address",
-          "any.required": "Please provide an email address",
-          "string.empty": "Email field is not allowed to be empty",
-        }),
-      password: Joi.string().required().empty().messages({
-        "any.required": "Please provide a password",
-        "string.empty": "Password field is not allowed to be empty",
-      }),
+    const { value, error } = loginSchema.validate(req.body, {
+      abortEarly: false,
     })
-
-    const { value, error } = schema.validate(req.body, { abortEarly: false })
     if (error) {
       // instead of stopping validation(abortEarly === true) at first error,
       // return all validation error messages
