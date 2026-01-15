@@ -10,7 +10,7 @@ const JWT_KEY = process.env.JWT_KEY
 const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body
-
+    // TODO: add validation schema in utils and error check as middleware
     // when there's no min check in string joi validation, always treat
     // empty strings ie. ("") as null and not truthy
     const schema = Joi.object({
@@ -24,7 +24,7 @@ const register = async (req, res) => {
         .email()
         .trim()
         .required()
-        .empty("")
+        .empty()
         .lowercase()
         .messages({
           "string.email": "Invalid email address",
