@@ -122,7 +122,7 @@ const login = async (req, res) => {
           "any.required": "Please provide an email address",
           "string.empty": "Email field is not allowed to be empty",
         }),
-      password: Joi.string().required().empty("").messages({
+      password: Joi.string().required().empty().messages({
         "any.required": "Please provide a password",
         "string.empty": "Password field is not allowed to be empty",
       }),
