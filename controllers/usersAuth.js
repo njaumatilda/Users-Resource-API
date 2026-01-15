@@ -48,7 +48,7 @@ const register = async (req, res) => {
       role: Joi.string()
         .trim()
         .required()
-        .empty("")
+        .empty()
         .valid("owner", "admin", "user")
         .messages({
           "any.only": "Role not allowed",
