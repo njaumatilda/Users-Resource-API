@@ -115,7 +115,7 @@ const login = async (req, res) => {
         .email()
         .trim()
         .required()
-        .empty("")
+        .empty()
         .lowercase()
         .messages({
           "string.email": "Invalid email address",
