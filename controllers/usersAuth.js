@@ -1,9 +1,7 @@
-import Joi from "joi"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import userModel from "../models/User.js"
 import isValidEmailDomain from "../utils/validEmailDomainChecker.js"
-import { registerSchema, loginSchema } from "../utils/joiValidation.js"
 
 const SALT = Number(process.env.SALT)
 const JWT_KEY = process.env.JWT_KEY
@@ -11,25 +9,9 @@ const JWT_KEY = process.env.JWT_KEY
 const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body
-    // TODO: add validation schema in utils and error check as middleware
-    // when there's no min check in string joi validation, always treat
-    // empty strings ie. ("") as null and not truthy
-
-    const { value, error } = registerSchema.validate(req.body, {
-      abortEarly: false,
-    })
-    if (error) {
-      // instead of stopping validation(abortEarly === true) at first error,
-      // return all validation error messages
-      const errorMessages = error.details.map((detail) => detail.message)
-
-      return res.status(400).json({
-        errors: errorMessages,
-      })
-    }
 
     const checkForExistingEmail = await userModel.findOne({
-      email: value.email,
+      email: email,
     })
     if (checkForExistingEmail) {
       return res.status(409).json({
@@ -37,7 +19,7 @@ const register = async (req, res) => {
       })
     }
 
-    const checkForValidEmail = await isValidEmailDomain(value.email)
+    const checkForValidEmail = await isValidEmailDomain(email)
     if (!checkForValidEmail) {
       return res.status(400).json({
         message: "Invalid email domain",
@@ -48,10 +30,10 @@ const register = async (req, res) => {
     // TODO: SEND USER EMAIL AFTER ACCOUNT CREATION FOR THE SUCCESSFUL PROCESS
 
     const newUser = await userModel.create({
-      name: value.name,
-      email: value.email,
-      password: await bcrypt.hash(value.password, SALT),
-      role: value.role,
+      name,
+      email,
+      password: await bcrypt.hash(password, SALT),
+      role,
     })
 
     res.status(201).json({
@@ -70,20 +52,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body
 
-    const { value, error } = loginSchema.validate(req.body, {
-      abortEarly: false,
-    })
-    if (error) {
-      // instead of stopping validation(abortEarly === true) at first error,
-      // return all validation error messages
-      const errorMessages = error.details.map((detail) => detail.message)
-
-      return res.status(400).json({
-        errors: errorMessages,
-      })
-    }
-
-    const findUser = await userModel.findOne({ email: value.email })
+    const findUser = await userModel.findOne({ email: email })
     if (!findUser) {
       return res.status(404).json({
         message: "User not found",
@@ -91,7 +60,7 @@ const login = async (req, res) => {
     }
 
     const checkForPasswordMatch = await bcrypt.compare(
-      value.password,
+      password,
       findUser.password
     )
 
